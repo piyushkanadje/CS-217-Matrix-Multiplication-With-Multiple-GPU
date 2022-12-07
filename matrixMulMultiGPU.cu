@@ -8,6 +8,7 @@
 #include "kernel1.cu"
 #include "kernel2.cu"
 #include "kernel3.cu"
+#include "kernel4.cu"
 
 
 
