@@ -215,8 +215,8 @@ int main(int argc,char *argv[]){
     cudaMemcpyAsync(dB1,hB1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
     cudaCheckError()
         
-    printf("Kernel 1 Execution...\n");
-    kernelC1 <<< dimGrid,dimBlock,0,streams[id]>>>(dA1,dB1,dC1,N,r);
+    printf(" Available Kernel 1 Execution...\n");
+    availableKernel1 <<< dimGrid,dimBlock,0,streams[id]>>>(dA1,dB1,dC1,N,r);
     cudaCheckError()
     
     ///////////////////////////////////////////////////////////////////////////////  
@@ -230,8 +230,8 @@ int main(int argc,char *argv[]){
     cudaMemcpyAsync(dB2,hB2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
     cudaCheckError()
     
-    printf("Kernel 2 Execution...\n");
-    kernelC2 <<< dimGrid,dimBlock,0,streams[id]>>>(dA1_2,dB2,dC2,N,r);
+    printf("Available Kernel 2 Execution...\n");
+    availableKernel2 <<< dimGrid,dimBlock,0,streams[id]>>>(dA1_2,dB2,dC2,N,r);
     cudaCheckError()
     
     ///////////////////////////////////////////////////////////////////////////////
@@ -245,8 +245,8 @@ int main(int argc,char *argv[]){
     cudaMemcpyAsync(dB1_2,hB1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
     cudaCheckError()
     
-    printf("Kernel 3 Execution...\n");
-    kernelC3 <<< dimGrid,dimBlock,0,streams[id]>>>(dA2,dB1_2,dC3,N,r);
+    printf("Available Kernel 3 Execution...\n");
+    availableKernel3 <<< dimGrid,dimBlock,0,streams[id]>>>(dA2,dB1_2,dC3,N,r);
     cudaCheckError()
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -260,8 +260,8 @@ int main(int argc,char *argv[]){
     cudaMemcpyAsync(dB2_2,hB2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
     cudaCheckError()
 
-    printf("Kernel 4 Execution...\n");
-    kernelC4 <<< dimGrid,dimBlock,0,streams[id]>>>(dA2_2,dB2_2,dC4,N,r);
+    printf("Available Kernel 4 Execution...\n");
+    availableKernel4 <<< dimGrid,dimBlock,0,streams[id]>>>(dA2_2,dB2_2,dC4,N,r);
     cudaCheckError()
 
     

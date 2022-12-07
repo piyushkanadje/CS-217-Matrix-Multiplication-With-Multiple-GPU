@@ -1,5 +1,5 @@
 
-__global__ void kernelC1(double *A,double *B,double *C,int width, double r){
+__global__ void availableKernel1(double *A,double *B,double *C,int width, double r){
     int idy = blockIdx.y*blockDim.y+threadIdx.y;
     int idx = blockIdx.x*blockDim.x+threadIdx.x;
     int step;

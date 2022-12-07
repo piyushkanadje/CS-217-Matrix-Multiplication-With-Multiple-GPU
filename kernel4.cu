@@ -1,4 +1,4 @@
-__global__ void kernelC4(double *A,double *B,double *C,int width, double r){
+__global__ void availableKernel4(double *A,double *B,double *C,int width, double r){
     int idy = blockIdx.y*blockDim.y+threadIdx.y;
     int idx = blockIdx.x*blockDim.x+threadIdx.x;
     
