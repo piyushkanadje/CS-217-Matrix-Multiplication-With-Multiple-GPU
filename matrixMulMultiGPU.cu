@@ -49,6 +49,7 @@ as it is shown below. The proportion of the size of the block is variable.
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include "kernel1.cu"
 // CUDA runtime
 //#include <cuda_runtime.h>
 
@@ -89,21 +90,21 @@ __global__ void matrix_multiplication(double *A,double *B,double *C,int width){
     C[idy*width+idx] = prod_val;
 }
 
-// Kernel for the computation of C1 portion
-__global__ void kernelC1(double *A,double *B,double *C,int width, double r){
-    int idy = blockIdx.y*blockDim.y+threadIdx.y;
-    int idx = blockIdx.x*blockDim.x+threadIdx.x;
-    int step;
-    double prod_val = 0;
+// // Kernel for the computation of C1 portion
+// __global__ void kernelC1(double *A,double *B,double *C,int width, double r){
+//     int idy = blockIdx.y*blockDim.y+threadIdx.y;
+//     int idx = blockIdx.x*blockDim.x+threadIdx.x;
+//     int step;
+//     double prod_val = 0;
     
-    if((idy>=(int)(width*r))||(idx>=(int)(width*r))) return;
+//     if((idy>=(int)(width*r))||(idx>=(int)(width*r))) return;
     
-    for(step=0;step<width;step++){
-        prod_val += A[idy*width+step] * B[step*(int)(width*r)+idx];
-    }
+//     for(step=0;step<width;step++){
+//         prod_val += A[idy*width+step] * B[step*(int)(width*r)+idx];
+//     }
     
-    C[idy*(int)(width*r)+idx] = prod_val;
-}
+//     C[idy*(int)(width*r)+idx] = prod_val;
+// }
 
 // Kernel for the computation of C2 portion
 __global__ void kernelC2(double *A,double *B,double *C,int width, double r){
@@ -182,11 +183,11 @@ int main(int argc,char *argv[]){
         printf("Number of available GPUs: %d\n\n",ndev);
     }
         
-    cudaMallocHost(&hA,N*N*sizeof(double));
+    cudaMallocManaged(&hA,N*N*sizeof(double));
     Check_Allocation_Return_Value(hA)
-    cudaMallocHost(&hB,N*N*sizeof(double));
+    cudaMallocManaged(&hB,N*N*sizeof(double));
     Check_Allocation_Return_Value(hB)
-    cudaMallocHost(&hC,N*N*sizeof(double));
+    cudaMallocManaged(&hC,N*N*sizeof(double));
     Check_Allocation_Return_Value(hC)
     memset(hC,0,N*N*sizeof(double));
         
@@ -211,11 +212,11 @@ int main(int argc,char *argv[]){
     //cudaStreamCreate(&streams[id]);
     cudaStreamCreateWithFlags(&streams[id],cudaStreamNonBlocking);
     
-    cudaMallocHost(&hA1,(int)(N*N*r*sizeof(double)));
+    cudaMallocManaged(&hA1,(int)(N*N*r*sizeof(double)));
     Check_Allocation_Return_Value(hA1)
-    cudaMallocHost(&hB1,(int)(N*N*r*sizeof(double)));
+    cudaMallocManaged(&hB1,(int)(N*N*r*sizeof(double)));
     Check_Allocation_Return_Value(hB1)
-    cudaMallocHost(&hC1,(int)(N*N*r*r*sizeof(double)));
+    cudaMallocManaged(&hC1,(int)(N*N*r*r*sizeof(double)));
     Check_Allocation_Return_Value(hC1)
     
     for(int i=0;i<(int)(N*r);i++){
@@ -242,9 +243,9 @@ int main(int argc,char *argv[]){
     //cudaStreamCreate(&streams[id]);
     cudaStreamCreateWithFlags(&streams[id],cudaStreamNonBlocking);
     
-    cudaMallocHost(&hB2,(int)(N*N*inv_r*sizeof(double)));
+    cudaMallocManaged(&hB2,(int)(N*N*inv_r*sizeof(double)));
     Check_Allocation_Return_Value(hB2)
-    cudaMallocHost(&hC2,(int)(N*N*r*inv_r*sizeof(double)));
+    cudaMallocManaged(&hC2,(int)(N*N*r*inv_r*sizeof(double)));
     Check_Allocation_Return_Value(hC2)
     
     for(int i=0;i<N;i++){
@@ -266,9 +267,9 @@ int main(int argc,char *argv[]){
     //cudaStreamCreate(&streams[id]);
     cudaStreamCreateWithFlags(&streams[id],cudaStreamNonBlocking);
     
-    cudaMallocHost(&hA2,(int)(N*N*inv_r*sizeof(double)));
+    cudaMallocManaged(&hA2,(int)(N*N*inv_r*sizeof(double)));
     Check_Allocation_Return_Value(hA2)
-    cudaMallocHost(&hC3,(int)(N*N*inv_r*r*sizeof(double)));
+    cudaMallocManaged(&hC3,(int)(N*N*inv_r*r*sizeof(double)));
     Check_Allocation_Return_Value(hC3)
     
     for(int i=0;i<(int)(N*inv_r);i++){
@@ -290,7 +291,7 @@ int main(int argc,char *argv[]){
     //cudaStreamCreate(&streams[id]);
     cudaStreamCreateWithFlags(&streams[id],cudaStreamNonBlocking);
 
-    cudaMallocHost(&hC4,(int)(N*N*inv_r*inv_r*sizeof(double)));
+    cudaMallocManaged(&hC4,(int)(N*N*inv_r*inv_r*sizeof(double)));
     Check_Allocation_Return_Value(hC4)
     
     cudaMalloc((void**)&dA2_2,(int)(N*N*inv_r*sizeof(double)));
@@ -439,7 +440,7 @@ int main(int argc,char *argv[]){
   //  printf("\n"); 
     
     
-    /*
+    
     //Compare the GPU result with CPU computation(for validation)
     printf("Check results...\n");
     int k;
@@ -459,22 +460,22 @@ int main(int argc,char *argv[]){
         }
         //printf("\n");
     }
-    */
     
     
     
-    printf("Free Host and Device Memory\n");
-    cudaFreeHost(hA);
-    cudaFreeHost(hB);
-    cudaFreeHost(hC);
-    cudaFreeHost(hA1);
-    cudaFreeHost(hA2);
-    cudaFreeHost(hB1);
-    cudaFreeHost(hB2);
-    cudaFreeHost(hC1);
-    cudaFreeHost(hC2);
-    cudaFreeHost(hC3);
-    cudaFreeHost(hC4);
+    
+    printf("Free Unfied Memory and Device Memory\n");
+    cudaFree(hA);
+    cudaFree(hB);
+    cudaFree(hC);
+    cudaFree(hA1);
+    cudaFree(hA2);
+    cudaFree(hB1);
+    cudaFree(hB2);
+    cudaFree(hC1);
+    cudaFree(hC2);
+    cudaFree(hC3);
+    cudaFree(hC4);
     
     id=0;
     cudaSetDevice(id%ndev);
@@ -490,16 +491,16 @@ int main(int argc,char *argv[]){
     cudaFree(dA1_2);
     cudaCheckError()
     cudaFree(dB2);
-    cudaCheckError()
+   cudaCheckError()
     cudaFree(dC2);
-    cudaCheckError()
+   cudaCheckError()
     
     id=2;
     cudaSetDevice(id%ndev);
     cudaFree(dA2);
     cudaCheckError()
     cudaFree(dB1_2);
-    cudaCheckError()
+   cudaCheckError()
     cudaFree(dC3);
     cudaCheckError()
     
@@ -508,14 +509,14 @@ int main(int argc,char *argv[]){
     cudaFree(dA2_2);
     cudaCheckError()
     cudaFree(dB2_2);
-    cudaCheckError()
+  cudaCheckError()
     cudaFree(dC4);
     cudaCheckError()
-    
+   
     cudaStreamDestroy(streams[0]);
     cudaStreamDestroy(streams[1]);
     cudaStreamDestroy(streams[2]);
     cudaStreamDestroy(streams[3]);
-    
+    printf("Memory Free Done\n");
     return(0);
 }
