@@ -341,25 +341,25 @@ int main(int argc,char *argv[]){
     
     
     
-    //Compare the GPU result with CPU computation(for validation)
-    printf("Check results...\n");
-    int k;
-    double res; 
-    for(i=0;i<N;i++){
-        for(j=0;j<N;j++){
-            res=0;
-            for(k=0;k<N;k++){
-                res+=hA[i*N+k]*hB[k*N+j];
-            }
+    // //Compare the GPU result with CPU computation(for validation)
+    // printf("Check results...\n");
+    // int k;
+    // double res; 
+    // for(i=0;i<N;i++){
+    //     for(j=0;j<N;j++){
+    //         res=0;
+    //         for(k=0;k<N;k++){
+    //             res+=hA[i*N+k]*hB[k*N+j];
+    //         }
             
-           //printf("%8.3f ",res);
-           if(res != hC[i*N+j]){
-                printf("NOT OK i:%d, j:%d\n",i,j);
-                printf("true value:%f - computed value:%f\n\n",res,hC[i*N+j]);
-           }
-        }
-        //printf("\n");
-    }
+    //        //printf("%8.3f ",res);
+    //        if(res != hC[i*N+j]){
+    //             printf("NOT OK i:%d, j:%d\n",i,j);
+    //             printf("true value:%f - computed value:%f\n\n",res,hC[i*N+j]);
+    //        }
+    //     }
+    //     //printf("\n");
+    // }
     
     
     
