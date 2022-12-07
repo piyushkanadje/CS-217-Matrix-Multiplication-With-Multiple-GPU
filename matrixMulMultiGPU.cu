@@ -185,38 +185,38 @@ int main(int argc,char *argv[]){
     cudaMalloc((void**)&dC3,(int)(N*N*r*inv_r*sizeof(double)));
     cudaCheckError()  
         
-    // // kernel 4
-    // id=3;
-    // cudaSetDevice(id%ndev);
-    // //cudaStreamCreate(&streams[id]);
-    // cudaStreamCreateWithFlags(&streams[id],cudaStreamNonBlocking);
+    // kernel 4
+    id=3;
+    cudaSetDevice(id%ndev);
+    //cudaStreamCreate(&streams[id]);
+    cudaStreamCreateWithFlags(&streams[id],cudaStreamNonBlocking);
 
-    // cudaMallocManaged(&hC4,(int)(N*N*inv_r*inv_r*sizeof(double)));
-    // Check_Allocation_Return_Value(hC4)
+    cudaMallocManaged(&hC4,(int)(N*N*inv_r*inv_r*sizeof(double)));
+    Check_Allocation_Return_Value(hC4)
     
-    // cudaMalloc((void**)&dA2_2,(int)(N*N*inv_r*sizeof(double)));
-    // cudaCheckError()
-    // cudaMalloc((void**)&dB2_2,(int)(N*N*inv_r*sizeof(double)));
-    // cudaCheckError()
-    // cudaMalloc((void**)&dC4,(int)(N*N*inv_r*inv_r*sizeof(double)));
-    // cudaCheckError()
+    cudaMalloc((void**)&dA2_2,(int)(N*N*inv_r*sizeof(double)));
+    cudaCheckError()
+    cudaMalloc((void**)&dB2_2,(int)(N*N*inv_r*sizeof(double)));
+    cudaCheckError()
+    cudaMalloc((void**)&dC4,(int)(N*N*inv_r*inv_r*sizeof(double)));
+    cudaCheckError()
         
-    // //////////////////////////////////////////////////////////////////////////////////////////////
-    // //////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////
    
-    // printf("CPU-->GPU Memory copy(A1,B1,C1) - cudaMemcpyAsync\n");
+    printf("CPU-->GPU Memory copy(A1,B1,C1) - cudaMemcpyAsync\n");
     
-    // id=0;
-    // cudaSetDevice(id%ndev);
+    id=0;
+    cudaSetDevice(id%ndev);
         
-    // cudaMemcpyAsync(dA1,hA1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    // cudaCheckError()
-    // cudaMemcpyAsync(dB1,hB1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    // cudaCheckError()
+    cudaMemcpyAsync(dA1,hA1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
+    cudaCheckError()
+    cudaMemcpyAsync(dB1,hB1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
+    cudaCheckError()
         
-    // printf("Kernel 1 Execution...\n");
-    // kernelC1 <<< dimGrid,dimBlock,0,streams[id]>>>(dA1,dB1,dC1,N,r);
-    // cudaCheckError()
+    printf("Kernel 1 Execution...\n");
+    kernelC1 <<< dimGrid,dimBlock,0,streams[id]>>>(dA1,dB1,dC1,N,r);
+    cudaCheckError()
     
     ///////////////////////////////////////////////////////////////////////////////  
     
@@ -250,18 +250,18 @@ int main(int argc,char *argv[]){
 
     ///////////////////////////////////////////////////////////////////////////////
     
-    // id=3;
-    // cudaSetDevice(id%ndev);
+    id=3;
+    cudaSetDevice(id%ndev);
     
-    // printf("CPU-->GPU Memory copy(A2,B2,C4) - cudaMemcpyAsync\n");
-    // cudaMemcpyAsync(dA2_2,hA2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    // cudaCheckError()
-    // cudaMemcpyAsync(dB2_2,hB2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    // cudaCheckError()
+    printf("CPU-->GPU Memory copy(A2,B2,C4) - cudaMemcpyAsync\n");
+    cudaMemcpyAsync(dA2_2,hA2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
+    cudaCheckError()
+    cudaMemcpyAsync(dB2_2,hB2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
+    cudaCheckError()
 
-    // printf("Kernel 4 Execution...\n");
-    // kernelC4 <<< dimGrid,dimBlock,0,streams[id]>>>(dA2_2,dB2_2,dC4,N,r);
-    // cudaCheckError()
+    printf("Kernel 4 Execution...\n");
+    kernelC4 <<< dimGrid,dimBlock,0,streams[id]>>>(dA2_2,dB2_2,dC4,N,r);
+    cudaCheckError()
 
     
     ///////////////////////////////////////////////////////////////////////////////
@@ -277,9 +277,9 @@ int main(int argc,char *argv[]){
     cudaMemcpyAsync(hC3,dC3,(int)(N*N*r*inv_r*sizeof(double)),cudaMemcpyDeviceToHost,streams[id]);
     cudaCheckError()
     
-    // printf("GPU-->CPU Memory copy (dC4) - cudaMemcpyAsync\n");
-    // cudaMemcpyAsync(hC4,dC4,(int)(N*N*inv_r*inv_r*sizeof(double)),cudaMemcpyDeviceToHost,streams[id]);
-    // cudaCheckError()
+    printf("GPU-->CPU Memory copy (dC4) - cudaMemcpyAsync\n");
+    cudaMemcpyAsync(hC4,dC4,(int)(N*N*inv_r*inv_r*sizeof(double)),cudaMemcpyDeviceToHost,streams[id]);
+    cudaCheckError()
     
     
     //Synchronize in order to process the results of every invocation
@@ -330,14 +330,14 @@ int main(int argc,char *argv[]){
     //printf("\n"); 
     
   
-//     for(i=0;i<(int)(N*inv_r);i++){
-//         for(j=0;j<(int)(N*inv_r);j++){
-//             hC[(i+(int)(N*r))*N+j+(int)(N*r)] = hC4[i*(int)(N*inv_r)+j];
-//           //  printf("hC[%d]:%f",(i+(int)(N*r))*N+j+(int)(N*r),hC[(i+(int)(N*r))*N+j+(int)(N*r)]);
-//         }
-//        // printf("\n");
-//     }
-//   //  printf("\n"); 
+    for(i=0;i<(int)(N*inv_r);i++){
+        for(j=0;j<(int)(N*inv_r);j++){
+            hC[(i+(int)(N*r))*N+j+(int)(N*r)] = hC4[i*(int)(N*inv_r)+j];
+          //  printf("hC[%d]:%f",(i+(int)(N*r))*N+j+(int)(N*r),hC[(i+(int)(N*r))*N+j+(int)(N*r)]);
+        }
+       // printf("\n");
+    }
+  //  printf("\n"); 
     
     
     
@@ -404,19 +404,19 @@ int main(int argc,char *argv[]){
     cudaFree(dC3);
     cudaCheckError()
     
-//     id=3;
-//     cudaSetDevice(id%ndev);
-//     cudaFree(dA2_2);
-//     cudaCheckError()
-//     cudaFree(dB2_2);
-//   cudaCheckError()
-//     cudaFree(dC4);
-//     cudaCheckError()
+    id=3;
+    cudaSetDevice(id%ndev);
+    cudaFree(dA2_2);
+    cudaCheckError()
+    cudaFree(dB2_2);
+  cudaCheckError()
+    cudaFree(dC4);
+    cudaCheckError()
    
     cudaStreamDestroy(streams[0]);
     cudaStreamDestroy(streams[1]);
     cudaStreamDestroy(streams[2]);
-    // cudaStreamDestroy(streams[3]);
+    cudaStreamDestroy(streams[3]);
     printf("Memory Free Done\n");
     return(0);
 }
