@@ -6,12 +6,12 @@ NVCC_FLAGS  = -O3 --std=c++03
 endif
 LD_FLAGS    = -lcudart
 EXE	        = sgemm-tiled
-OBJ	        = matrixMulMultiGPU.o
+OBJ	        = main.o
 
 default: $(EXE)
 
-matrixMulMultiGPU.o : matrixMulMultiGPU.cu kernel1.cu kernel2.cu kernel3.cu kernel4.cu 
-	$(NVCC) -c -o $@ matrixMulMultiGPU.cu $(NVCC_FLAGS)
+matrixMulMultiGPU.o : main.cu kernel1.cu kernel2.cu kernel3.cu kernel4.cu 
+	$(NVCC) -c -o $@ main.cu $(NVCC_FLAGS)
 
 
 
