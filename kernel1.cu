@@ -1,3 +1,4 @@
+//Available kernel versions execution
 
 __global__ void availableKernel1(double *A,double *B,double *C,int width, double r){
     int idy = blockIdx.y*blockDim.y+threadIdx.y;

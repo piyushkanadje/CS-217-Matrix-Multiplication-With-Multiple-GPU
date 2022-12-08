@@ -1,6 +1,3 @@
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -13,23 +10,24 @@
 
 
 
-//Error handling using functions of the CUDA runtime API
-#define cudaCheckError() {                                                              \
-    cudaError_t e=cudaGetLastError();                                                   \
-    if(e!=cudaSuccess) {                                                                \
-        printf("Cuda failure %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(e));   \
-        cudaDeviceReset();                                                              \
-        exit(EXIT_FAILURE);                                                             \
-    }                                                                                   \
+//Cuda runtime API function for Error handling
+#define cudaErrorHandle() {                                                              
+    cudaError_t e=cudaGetLastError();                                                   
+    if(e!=cudaSuccess) {                                                               
+        printf("Somethind is wrong in Cuda (Cuda failure) %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(e));   
+        cudaDeviceReset();                                                              
+        exit(EXIT_FAILURE);                                                             
+    }                                                                                   
 }
 
-//This macro checks malloc() and cudaMalloc() return values
-#define Check_Allocation_Return_Value(a){   \
-    if(a==NULL) {                           \
-    printf("Allocation Error\n");           \
-    cudaDeviceReset();                      \
-    exit(EXIT_FAILURE);                     \
-    }                                       \
+
+//Helper function to check the return values of malloc(), cudaManagedMalloc() and cudaMalloc()
+#define Check_Allocation_Return_Value(a){   
+    if(a==NULL) {                           
+    printf(" There is a Cuda Allocation Error\n");           
+    cudaDeviceReset();                      
+    exit(EXIT_FAILURE);                     
+    }                                       
 }
 
 
@@ -132,11 +130,11 @@ int main(int argc,char *argv[]){
     }
 
     cudaMalloc((void**)&dA1,(int)(N*N*r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMalloc((void**)&dB1,(int)(N*N*r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMalloc((void**)&dC1,(int)(N*N*r*r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
         
     // kernel 2
     id=1;
@@ -156,11 +154,11 @@ int main(int argc,char *argv[]){
     }
      
     cudaMalloc((void**)&dA1_2,(int)(N*N*r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMalloc((void**)&dB2,(int)(N*N*inv_r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMalloc((void**)&dC2,(int)(N*N*r*inv_r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
         
     // kernel 3
     id=2;
@@ -180,11 +178,11 @@ int main(int argc,char *argv[]){
     }
     
     cudaMalloc((void**)&dA2,(int)(N*N*inv_r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMalloc((void**)&dB1_2,(int)(N*N*r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMalloc((void**)&dC3,(int)(N*N*r*inv_r*sizeof(double)));
-    cudaCheckError()  
+    cudaErrorHandle()  
         
     // kernel 4
     id=3;
@@ -196,11 +194,11 @@ int main(int argc,char *argv[]){
     Check_Allocation_Return_Value(hC4)
     
     cudaMalloc((void**)&dA2_2,(int)(N*N*inv_r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMalloc((void**)&dB2_2,(int)(N*N*inv_r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMalloc((void**)&dC4,(int)(N*N*inv_r*inv_r*sizeof(double)));
-    cudaCheckError()
+    cudaErrorHandle()
         
     //////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -211,13 +209,13 @@ int main(int argc,char *argv[]){
     cudaSetDevice(id%ndev);
         
     cudaMemcpyAsync(dA1,hA1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMemcpyAsync(dB1,hB1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
         
     printf(" Available Kernel 1 Execution...\n");
     availableKernel1 <<< dimGrid,dimBlock,0,streams[id]>>>(dA1,dB1,dC1,N,r);
-    cudaCheckError()
+    cudaErrorHandle()
     
     ///////////////////////////////////////////////////////////////////////////////  
     
@@ -226,13 +224,13 @@ int main(int argc,char *argv[]){
     
     printf("CPU-->GPU Memory copy(A1,B2,C2) - cudaMemcpyAsync\n");
     cudaMemcpyAsync(dA1_2,hA1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMemcpyAsync(dB2,hB2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     
     printf("Available Kernel 2 Execution...\n");
     availableKernel2 <<< dimGrid,dimBlock,0,streams[id]>>>(dA1_2,dB2,dC2,N,r);
-    cudaCheckError()
+    cudaErrorHandle()
     
     ///////////////////////////////////////////////////////////////////////////////
     
@@ -241,13 +239,13 @@ int main(int argc,char *argv[]){
     
     printf("CPU-->GPU Memory copy(A2,B1,C3) - cudaMemcpyAsync\n");
     cudaMemcpyAsync(dA2,hA2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMemcpyAsync(dB1_2,hB1,(int)(N*N*r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     
     printf("Available Kernel 3 Execution...\n");
     availableKernel3 <<< dimGrid,dimBlock,0,streams[id]>>>(dA2,dB1_2,dC3,N,r);
-    cudaCheckError()
+    cudaErrorHandle()
 
     ///////////////////////////////////////////////////////////////////////////////
     
@@ -256,31 +254,31 @@ int main(int argc,char *argv[]){
     
     printf("CPU-->GPU Memory copy(A2,B2,C4) - cudaMemcpyAsync\n");
     cudaMemcpyAsync(dA2_2,hA2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaMemcpyAsync(dB2_2,hB2,(int)(N*N*inv_r*sizeof(double)),cudaMemcpyHostToDevice,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
 
     printf("Available Kernel 4 Execution...\n");
     availableKernel4 <<< dimGrid,dimBlock,0,streams[id]>>>(dA2_2,dB2_2,dC4,N,r);
-    cudaCheckError()
+    cudaErrorHandle()
 
     
     ///////////////////////////////////////////////////////////////////////////////
     printf("GPU-->CPU Memory copy (dC1) - cudaMemcpyAsync\n");
     cudaMemcpyAsync(hC1,dC1,(int)(N*N*r*r*sizeof(double)),cudaMemcpyDeviceToHost,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     
     printf("GPU-->CPU Memory copy (dC2) - cudaMemcpyAsync\n");
     cudaMemcpyAsync(hC2,dC2,(int)(N*N*r*inv_r*sizeof(double)),cudaMemcpyDeviceToHost,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     
     printf("GPU-->CPU Memory copy (dC3) - cudaMemcpyAsync\n");
     cudaMemcpyAsync(hC3,dC3,(int)(N*N*r*inv_r*sizeof(double)),cudaMemcpyDeviceToHost,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     
     printf("GPU-->CPU Memory copy (dC4) - cudaMemcpyAsync\n");
     cudaMemcpyAsync(hC4,dC4,(int)(N*N*inv_r*inv_r*sizeof(double)),cudaMemcpyDeviceToHost,streams[id]);
-    cudaCheckError()
+    cudaErrorHandle()
     
     
     //Synchronize in order to process the results of every invocation
@@ -381,38 +379,38 @@ int main(int argc,char *argv[]){
     id=0;
     cudaSetDevice(id%ndev);
     cudaFree(dA1);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaFree(dB1);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaFree(dC1);
-    cudaCheckError()
+    cudaErrorHandle()
     
     id=1;
     cudaSetDevice(id%ndev);
     cudaFree(dA1_2);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaFree(dB2);
-   cudaCheckError()
+   cudaErrorHandle()
     cudaFree(dC2);
-   cudaCheckError()
+   cudaErrorHandle()
     
     id=2;
     cudaSetDevice(id%ndev);
     cudaFree(dA2);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaFree(dB1_2);
-   cudaCheckError()
+   cudaErrorHandle()
     cudaFree(dC3);
-    cudaCheckError()
+    cudaErrorHandle()
     
     id=3;
     cudaSetDevice(id%ndev);
     cudaFree(dA2_2);
-    cudaCheckError()
+    cudaErrorHandle()
     cudaFree(dB2_2);
-  cudaCheckError()
+  cudaErrorHandle()
     cudaFree(dC4);
-    cudaCheckError()
+    cudaErrorHandle()
    
     cudaStreamDestroy(streams[0]);
     cudaStreamDestroy(streams[1]);
